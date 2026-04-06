@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel de Coletas</title>
+  <style>
+    :root {
+      --bg: #07111d;
+      --bg-soft: #0b1f36;
+      --panel: #0a1730;
+      --header-blue: #173d62;
+      --header-blue-2: #1F5284;
+      --line: rgba(255,255,255,0.14);
+      --text: #f8fafc;
+      --muted: #bdd0ea;
+      --yellow: #f4ef78;
+      --green: #29d46f;
+      --orange: #ffb24a;
+      --red: #ff5d5d;
+      --white: #ffffff;
+      --row-a: #0a1424;
+      --row-b: #13233d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #04101c;
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    .wrap {
+      width: 100vw;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: 74px 64px 1fr 24px;
+      background: linear-gradient(180deg, #04101c 0%, #061526 100%);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 2px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, var(--header-blue-2) 0%, var(--header-blue) 100%);
+      box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      line-height: 1;
+      color: #fff7b0;
+      text-shadow: 0 2px 0 rgba(0,0,0,.28);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .clock {
+      text-align: right;
+      padding: 0;
+      min-width: 180px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    .clock-time {
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      line-height: 1;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 2px 0 rgba(0,0,0,.25);
+    }
+
+    .clock-date {
+      color: #d6e6ff;
+      font-size: 12px;
+      margin-top: 6px;
+      text-transform: none;
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      padding: 8px 10px;
+      border-bottom: 2px solid rgba(255,255,255,0.06);
+      background: #06182b;
+    }
+
+    .card {
+      position: relative;
+      background: linear-gradient(180deg, #0a2037 0%, #08192d 100%);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 4px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+      overflow: hidden;
+    }
+
+    .card-label {
+      font-size: 11px;
+      color: #d9e8ff;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    .card-value {
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1;
+      color: #ffffff;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+      margin-left: 10px;
+      box-shadow: 0 0 14px rgba(255,255,255,.08);
+    }
+
+    .dot.green { background: var(--green); }
+    .dot.yellow { background: #f5cd18; }
+    .dot.orange { background: var(--orange); }
+    .dot.red { background: var(--red); }
+    .dot.blue { background: #47b8ff; }
+
+    .table-area {
+      padding: 6px 6px 0 6px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #081523;
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+
+    thead th {
+      background: linear-gradient(180deg, #1F5284 0%, #205A94 100%);
+      color: #ffffff;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 8px 6px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    thead th:last-child { border-right: none; }
+
+    tbody td {
+      padding: 8px 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 14px;
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      vertical-align: middle;
+      word-break: break-word;
+      line-height: 1.18;
+      color: #ffffff;
+    }
+
+    tbody tr { height: auto; }
+    tbody tr:nth-child(odd) { background: var(--row-a); }
+    tbody tr:nth-child(even) { background: var(--row-b); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .center { text-align: center; }
+    .right { text-align: right; }
+    .small { font-size: 12px; color: var(--muted); }
+
+    .status-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+
+    .status-icon {
+      width: 15px;
+      height: 15px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+      box-shadow: 0 0 10px rgba(255,255,255,.12);
+    }
+
+    .status-text {
+      font-size: 13px;
+      color: var(--yellow);
+      font-weight: 800;
+    }
+
+    .status-chegou-prazo .status-icon { background: var(--green); }
+    .status-chegou-prazo .status-text { color: #dfffe9; }
+    .status-chegou-atrasado .status-icon { background: var(--orange); }
+    .status-chegou-atrasado .status-text { color: #ffe2b8; }
+    .status-atrasado .status-icon { background: var(--red); }
+    .status-atrasado .status-text { color: #ffd0d0; }
+    .status-deslocamento .status-icon { background: #47b8ff; }
+    .status-deslocamento .status-text { color: var(--yellow); }
+    .status-andamento .status-icon { background: #f5cd18; }
+    .status-andamento .status-text { color: var(--yellow); }
+
+    .row-atrasado {
+      background: #3b1318 !important;
+    }
+
+    .row-chegou-atrasado {
+      background: #3a2410 !important;
+    }
+
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      color: #b8cbe2;
+      font-size: 11px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: #06182b;
+    }
+
+    .ticker {
+      overflow: hidden;
+      white-space: nowrap;
+      width: 100%;
+      margin-left: 12px;
+    }
+
+    .ticker span {
+      display: inline-block;
+      padding-left: 100%;
+      animation: ticker 22s linear infinite;
+    }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+
+    .blink {
+      animation: blink 1.2s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .45; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <div class="title"><span>PAINEL DE CHEGADA DE COLETAS: CPSZ</span></div>
+      </div>
+      <div class="clock">
+        <div class="clock-time" id="clockTime">--:--:--</div>
+        <div class="clock-date" id="clockDate">--</div>
+      </div>
+    </div>
+
+    <div class="kpis">
+      <div class="card"><div><div class="card-label">Total monitorado</div><div class="card-value" id="kpiTotal">0</div></div><div class="dot blue"></div></div>
+      <div class="card"><div><div class="card-label">Coleta em andamento</div><div class="card-value" id="kpiAndamento">0</div></div><div class="dot yellow"></div></div>
+      <div class="card"><div><div class="card-label">Em deslocamento</div><div class="card-value" id="kpiDeslocamento">0</div></div><div class="dot blue"></div></div>
+      <div class="card"><div><div class="card-label">Atrasados</div><div class="card-value" id="kpiAtrasado">0</div></div><div class="dot red"></div></div>
+      <div class="card"><div><div class="card-label">Chegadas concluídas</div><div class="card-value" id="kpiChegaram">0</div></div><div class="dot green"></div></div>
+    </div>
+
+    <div class="table-area">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 200px;">Status</th>
+            <th style="width: 70px;">Unidade</th>
+            <th style="width: 150px;">Viagem</th>
+            <th style="width: 300px;">Coleta</th>
+            <th style="width: 70px;">Hub</th>
+            <th style="width: 150px;">Portador</th>
+            <th style="width: 80px;">Placa</th>
+            <th style="width: 110px;">Tipo Veículo</th>
+            <th style="width: 95px;">Possui Selo?</th>
+            <th style="width: 95px;">Saída Orçada</th>
+            <th style="width: 95px;">Saída Real</th>
+            <th style="width: 150px;">Previsão de Chegada</th>
+            <th style="width: 110px;">Chegada Real</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      <div id="pageInfo">Página 1/1</div>
+      <div class="ticker"><span id="tickerText">Painel operacional ativo.</span></div>
+    </div>
+  </div>
+
+  <script>
+    // Troque apenas a aba abaixo pelo nome exato da sua aba no Google Sheets.
+    const SHEET_ID = '1Z0JxjNzg3Yv8bXzcqEgB2JMBjykqQdAoAWttnYamulU';
+    const SHEET_NAME = 'Consolidado';
+    const DATA_URL = `https://opensheet.elk.sh/${SHEET_ID}/${encodeURIComponent(SHEET_NAME)}`;
+
+    const PAGE_SECONDS = 10;
+    const REFRESH_SECONDS = 60;
+    const ROWS_PER_PAGE = 14;
+
+    let allRows = [];
+    let currentPage = 0;
+    let pageTimer = null;
+    let refreshTimer = null;
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockTime').textContent = now.toLocaleTimeString('pt-BR');
+      document.getElementById('clockDate').textContent = now.toLocaleDateString('pt-BR', {
+        weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit'
+      });
+    }
+
+    function normalize(v) {
+      return String(v ?? '').trim();
+    }
+
+    function parseDateTimeBR(value) {
+      const v = normalize(value);
+      if (!v) return null;
+
+      if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(v)) {
+        const today = new Date();
+        const [hh, mm, ss = '00'] = v.split(':');
+        return new Date(today.getFullYear(), today.getMonth(), today.getDate(), Number(hh), Number(mm), Number(ss));
+      }
+
+      const m = v.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+      if (m) {
+        const [, d, mo, y, hh = '0', mi = '0', ss = '0'] = m;
+        const year = String(y).length === 2 ? 2000 + Number(y) : Number(y);
+        return new Date(year, Number(mo) - 1, Number(d), Number(hh), Number(mi), Number(ss));
+      }
+
+      const date = new Date(v);
+      return isNaN(date.getTime()) ? null : date;
+    }
+
+    function parseTimeOnly(value) {
+      const v = normalize(value);
+      if (!v) return null;
+      const m = v.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+      if (!m) return null;
+      return { h: Number(m[1]), m: Number(m[2]), s: Number(m[3] || 0) };
+    }
+
+    function fmtDateTime(value) {
+      const dt = parseDateTimeBR(value);
+      if (!dt) return '-';
+      return dt.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+    }
+
+    function fmtTime(value) {
+      const dt = parseDateTimeBR(value);
+      if (!dt) {
+        const t = parseTimeOnly(value);
+        if (t) return `${String(t.h).padStart(2, '0')}:${String(t.m).padStart(2, '0')}`;
+        return '-';
+      }
+      return dt.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+    }
+
+    function toNumberBR(value) {
+      const v = normalize(value)
+        .replace(/\./g, '')
+        .replace(',', '.');
+      const n = Number(v);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function getStatus(row) {
+      const now = new Date();
+      const previsao = parseDateTimeBR(row['Previsão de Chegada']);
+      const chegada = parseDateTimeBR(row['Chegada Real']);
+
+      if (!previsao) {
+        return { key: 'andamento', text: 'Coleta em andamento', rowClass: '' };
+      }
+
+      if (chegada) {
+        if (chegada <= previsao) {
+          return { key: 'chegou-prazo', text: 'Chegou no prazo', rowClass: '' };
+        }
+        return { key: 'chegou-atrasado', text: 'Chegou atrasado', rowClass: 'row-chegou-atrasado' };
+      }
+
+      if (now > previsao) {
+        return { key: 'atrasado', text: 'Atrasado', rowClass: 'row-atrasado blink' };
+      }
+
+      return { key: 'deslocamento', text: 'Em deslocamento', rowClass: '' };
+    }
+
+    function getPriority(statusKey) {
+      const map = {
+        'atrasado': 1,
+        'chegou-atrasado': 2,
+        'deslocamento': 3,
+        'andamento': 4,
+        'chegou-prazo': 5
+      };
+      return map[statusKey] || 9;
+    }
+
+    function enrichRow(row) {
+      const status = getStatus(row);
+      const previsao = parseDateTimeBR(row['Previsão de Chegada']);
+      return {
+        ...row,
+        _status: status,
+        _priority: getPriority(status.key),
+        _previsaoTs: previsao ? previsao.getTime() : Number.MAX_SAFE_INTEGER
+      };
+    }
+
+    function sortRows(rows) {
+      return rows.sort((a, b) => {
+        if (a._priority !== b._priority) return a._priority - b._priority;
+        if (a._previsaoTs !== b._previsaoTs) return a._previsaoTs - b._previsaoTs;
+        return normalize(a['Unidade']).localeCompare(normalize(b['Unidade']), 'pt-BR');
+      });
+    }
+
+    function statusHtml(status) {
+      const cls = {
+        'chegou-prazo': 'status-chegou-prazo',
+        'chegou-atrasado': 'status-chegou-atrasado',
+        'atrasado': 'status-atrasado',
+        'deslocamento': 'status-deslocamento',
+        'andamento': 'status-andamento'
+      }[status.key];
+
+      return `
+        <div class="status-cell ${cls}">
+          <span class="status-icon"></span>
+          <span class="status-text">${status.text}</span>
+        </div>
+      `;
+    }
+
+    function renderPage() {
+      const tbody = document.getElementById('tbody');
+      const totalPages = Math.max(1, Math.ceil(allRows.length / ROWS_PER_PAGE));
+      if (currentPage >= totalPages) currentPage = 0;
+
+      const start = currentPage * ROWS_PER_PAGE;
+      const pageRows = allRows.slice(start, start + ROWS_PER_PAGE);
+
+      tbody.innerHTML = pageRows.map(row => `
+        <tr class="${row._status.rowClass}">
+          <td>${statusHtml(row._status)}</td>
+          <td class="center">${normalize(row['Unidade']) || '-'}</td>
+          <td class="center">${normalize(row[' Viagem ']) || '-'}</td>
+          <td title="${normalize(row['Coleta'])}" style="white-space: normal;">${normalize(row['Coleta']) || '-'}</td>
+          <td class="center">${normalize(row['HUB']) || '-'}</td>
+          <td title="${normalize(row['Portador'])}">${normalize(row['Portador']) || '-'}</td>
+          <td class="center">${normalize(row['Placa']) || '-'}</td>
+          <td class="center">${normalize(row['Tipo Veiculo']) || normalize(row['Tipo Veículo']) || '-'}</td>
+          <td class="center">${normalize(row['Possui Selo?']) || '-'}</td>
+          <td class="center">${fmtTime(row['Saída Orçada'])}</td>
+          <td class="center">${fmtTime(row['Saída Real'])}</td>
+          <td class="center">${fmtTime(row['Previsão de Chegada'])}</td>
+          <td class="center">${fmtTime(row['Chegada Real'])}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('pageInfo').textContent = `Página ${currentPage + 1}/${totalPages}`;
+    }
+
+    function renderKpis() {
+      const total = allRows.length;
+      const andamento = allRows.filter(r => r._status.key === 'andamento').length;
+      const deslocamento = allRows.filter(r => r._status.key === 'deslocamento').length;
+      const atrasado = allRows.filter(r => r._status.key === 'atrasado').length;
+      const chegaram = allRows.filter(r => r._status.key === 'chegou-prazo' || r._status.key === 'chegou-atrasado').length;
+
+      document.getElementById('kpiTotal').textContent = total;
+      document.getElementById('kpiAndamento').textContent = andamento;
+      document.getElementById('kpiDeslocamento').textContent = deslocamento;
+      document.getElementById('kpiAtrasado').textContent = atrasado;
+      document.getElementById('kpiChegaram').textContent = chegaram;
+
+      const tickerParts = [];
+      const atrasados = allRows.filter(r => r._status.key === 'atrasado').slice(0, 6);
+      if (atrasados.length) {
+        tickerParts.push('Atenção: ' + atrasados.map(r => `${normalize(r['Unidade'])} - ${normalize(r['Coleta'])}`).join(' | '));
+      } else {
+        tickerParts.push('Sem coletas atrasadas no momento.');
+      }
+      document.getElementById('tickerText').textContent = tickerParts.join('     ');
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch(DATA_URL, { cache: "no-store" });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const rows = await res.json();
+
+        if (!Array.isArray(rows)) {
+          throw new Error("O JSON retornado não é um array.");
+        }
+
+        allRows = sortRows(
+          rows
+            .filter(r => String(r["HUB"] || "").trim().toUpperCase() === "CPSZ")
+            .map(enrichRow)
+        );
+
+        renderKpis();
+        renderPage();
+        document.getElementById("tickerText").textContent = "Painel operacional ativo.";
+      } catch (err) {
+        console.error("Erro detalhado no loadData:", err);
+        console.log("DATA_URL usada:", DATA_URL);
+        document.getElementById("tickerText").textContent =
+          "Erro ao carregar dados. Verifique a URL no console.";
+      }
+    }
+
+    function startRotation() {
+      if (pageTimer) clearInterval(pageTimer);
+      pageTimer = setInterval(() => {
+        const totalPages = Math.max(1, Math.ceil(allRows.length / ROWS_PER_PAGE));
+        currentPage = (currentPage + 1) % totalPages;
+        renderPage();
+      }, PAGE_SECONDS * 1000);
+
+      if (refreshTimer) clearInterval(refreshTimer);
+      refreshTimer = setInterval(async () => {
+        const oldPage = currentPage;
+        await loadData();
+        currentPage = oldPage;
+        renderPage();
+      }, REFRESH_SECONDS * 1000);
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+    loadData().then(startRotation);
+  </script>
+</body>
+</html>
