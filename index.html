@@ -282,6 +282,7 @@
     .dot.orange { background: var(--orange); box-shadow: 0 0 18px rgba(255,179,71,.36); }
     .dot.red { background: var(--red); box-shadow: 0 0 18px rgba(255,103,103,.42); }
     .dot.blue { background: var(--blue); box-shadow: 0 0 18px rgba(83,182,255,.40); }
+    .dot.white { background: var(--white); box-shadow: 0 0 18px rgb(255, 255, 255); }
 
     .table-area {
       min-height: 0;
@@ -548,6 +549,22 @@
       </div>
 
       <div class="kpis">
+        <div class="card coletas">
+          <div class="card-left">
+            <div class="card-label">Total de coletas</div>
+            <div class="card-value" id="kpiColetas">0</div>
+          </div>
+          <div class="dot white"></div>
+        </div>
+
+        <div class="card embarcadores">
+          <div class="card-left">
+            <div class="card-label">Total de embarcadores</div>
+            <div class="card-value" id="kpiEmbarcadores">0</div>
+          </div>
+          <div class="dot orange"></div>
+        </div>
+
         <div class="card total">
           <div class="card-left">
             <div class="card-label">Total de Veículos</div>
@@ -586,22 +603,6 @@
             <div class="card-value" id="kpiChegaram">0</div>
           </div>
           <div class="dot green"></div>
-        </div>
-
-        <div class="card embarcadores">
-          <div class="card-left">
-            <div class="card-label">Total de embarcadores</div>
-            <div class="card-value" id="kpiEmbarcadores">0</div>
-          </div>
-          <div class="dot blue"></div>
-        </div>
-
-        <div class="card coletas">
-          <div class="card-left">
-            <div class="card-label">Total de coletas</div>
-            <div class="card-value" id="kpiColetas">0</div>
-          </div>
-          <div class="dot orange"></div>
         </div>
       </div>
 
