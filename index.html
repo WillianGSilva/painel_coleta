@@ -205,7 +205,7 @@
 
     .kpis {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(7, 1fr);
       gap: 10px;
       padding: 0 10px 0 10px;
     }
@@ -240,6 +240,8 @@
     .card.deslocamento::after { background: var(--cyan); }
     .card.atrasado::after { background: var(--red); }
     .card.chegaram::after { background: var(--green); }
+    .card.embarcadores::after { background: var(--cyan); }
+    .card.coletas::after { background: var(--orange); }
 
     .card-left {
       min-width: 0;
@@ -250,7 +252,7 @@
       color: var(--muted);
       margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 1.4px;
+      letter-spacing: 1.2px;
       font-weight: 800;
       white-space: nowrap;
       overflow: hidden;
@@ -506,7 +508,19 @@
 
       tbody td {
         font-size: 12px;
-        padding: 9px 7px;
+        padding: 7px 7px;
+      }
+
+      .kpis {
+        gap: 8px;
+      }
+
+      .card {
+        padding: 12px 12px;
+      }
+
+      .card-label {
+        font-size: 10px;
       }
     }
   </style>
@@ -536,7 +550,7 @@
       <div class="kpis">
         <div class="card total">
           <div class="card-left">
-            <div class="card-label">Total de Veiculos</div>
+            <div class="card-label">Total de Veículos</div>
             <div class="card-value" id="kpiTotal">0</div>
           </div>
           <div class="dot blue"></div>
@@ -572,6 +586,22 @@
             <div class="card-value" id="kpiChegaram">0</div>
           </div>
           <div class="dot green"></div>
+        </div>
+
+        <div class="card embarcadores">
+          <div class="card-left">
+            <div class="card-label">Total de embarcadores</div>
+            <div class="card-value" id="kpiEmbarcadores">0</div>
+          </div>
+          <div class="dot blue"></div>
+        </div>
+
+        <div class="card coletas">
+          <div class="card-left">
+            <div class="card-label">Total de coletas</div>
+            <div class="card-value" id="kpiColetas">0</div>
+          </div>
+          <div class="dot orange"></div>
         </div>
       </div>
 
@@ -616,7 +646,7 @@
 
     const PAGE_SECONDS = 30;
     const REFRESH_SECONDS = 60;
-    const ROWS_PER_PAGE = 12;
+    const ROWS_PER_PAGE = 20;
 
     let allRows = [];
     let currentPage = 0;
@@ -636,6 +666,13 @@
 
     function normalize(v) {
       return String(v ?? '').trim();
+    }
+
+    function getClientesFromColeta(value) {
+      return normalize(value)
+        .split(',')
+        .map(v => v.trim())
+        .filter(v => v.length > 0);
     }
 
     function parseDateTimeBR(value) {
@@ -710,9 +747,9 @@
     function getPriority(statusKey) {
       const map = {
         'atrasado': 1,
-        'chegou-atrasado': 4,
-        'deslocamento': 3,
         'andamento': 2,
+        'deslocamento': 3,
+        'chegou-atrasado': 4,
         'chegou-prazo': 5
       };
       return map[statusKey] || 9;
@@ -792,11 +829,18 @@
       const atrasado = allRows.filter(r => r._status.key === 'atrasado').length;
       const chegaram = allRows.filter(r => r._status.key === 'chegou-prazo' || r._status.key === 'chegou-atrasado').length;
 
+      const todosClientes = allRows.flatMap(r => getClientesFromColeta(r['Coleta']));
+      const embarcadoresUnicos = new Set(todosClientes.map(c => c.toUpperCase()));
+      const totalEmbarcadores = embarcadoresUnicos.size;
+      const totalColetas = todosClientes.length;
+
       document.getElementById('kpiTotal').textContent = total;
       document.getElementById('kpiAndamento').textContent = andamento;
       document.getElementById('kpiDeslocamento').textContent = deslocamento;
       document.getElementById('kpiAtrasado').textContent = atrasado;
       document.getElementById('kpiChegaram').textContent = chegaram;
+      document.getElementById('kpiEmbarcadores').textContent = totalEmbarcadores;
+      document.getElementById('kpiColetas').textContent = totalColetas;
 
       const atrasados = allRows.filter(r => r._status.key === 'atrasado').slice(0, 6);
 
