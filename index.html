@@ -710,9 +710,9 @@
     function getPriority(statusKey) {
       const map = {
         'atrasado': 1,
-        'chegou-atrasado': 2,
+        'chegou-atrasado': 4,
         'deslocamento': 3,
-        'andamento': 4,
+        'andamento': 2,
         'chegou-prazo': 5
       };
       return map[statusKey] || 9;
